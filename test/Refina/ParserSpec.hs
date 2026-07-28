@@ -197,9 +197,9 @@ literalParserSpec :: Spec
 literalParserSpec = describe "literalParser" $ do
   describe "string literals" $ do
     it "parses a double-quoted string" $ do
-      parseOnly literalParser "\"hi\"" `shouldBe` Right (LString "hi")
+      parseOnly literalParser "\"hi\"" `shouldBe` Right (LStr "hi")
     it "parses a single-quoted string" $ do
-      parseOnly literalParser "'hi'" `shouldBe` Right (LString "hi")
+      parseOnly literalParser "'hi'" `shouldBe` Right (LStr "hi")
   describe "boolean literals" $ do
     it "parses 'true'" $ do
       parseOnly literalParser "true" `shouldBe` Right (LBool True)
@@ -207,9 +207,9 @@ literalParserSpec = describe "literalParser" $ do
       parseOnly literalParser "false" `shouldBe` Right (LBool False)
   describe "integer literals" $ do
     it "parses a positive integer" $ do
-      parseOnly literalParser "42" `shouldBe` Right (LInteger 42)
+      parseOnly literalParser "42" `shouldBe` Right (LInt 42)
     it "parses zero" $ do
-      parseOnly literalParser "0" `shouldBe` Right (LInteger 0)
+      parseOnly literalParser "0" `shouldBe` Right (LInt 0)
 
 -- ---------------------------------------------------------------------------
 -- compareOpParser
@@ -316,13 +316,16 @@ primitiveTypeSpec = describe "primitive types" $ do
   it "parses Bool" $ parseModule "X := Bool" `shouldSatisfy` isRight
   it "parses Null" $ parseModule "X := Null" `shouldSatisfy` isRight
   it "parses List with type arg" $ parseModule "X := List Str" `shouldSatisfy` isRight
-  it "parses List with named type arg" $ parseModule "X := List User"
-    `shouldSatisfy` isRight
-  it "parses Map with two type args" $ parseModule "X := Map Str Int"
-    `shouldSatisfy` isRight
+  it "parses List with named type arg" $
+    parseModule "X := List User"
+      `shouldSatisfy` isRight
+  it "parses Map with two type args" $
+    parseModule "X := Map Str Int"
+      `shouldSatisfy` isRight
   it "rejects List without type arg" $ parseModule "X := List" `shouldSatisfy` isLeft
-  it "rejects Map with one type arg" $ parseModule "X := Map Str"
-    `shouldSatisfy` isLeft
+  it "rejects Map with one type arg" $
+    parseModule "X := Map Str"
+      `shouldSatisfy` isLeft
 
 -- ---------------------------------------------------------------------------
 -- Union types
@@ -623,10 +626,10 @@ astInspectionSpec = describe "AST structure" $ do
     term "Name := Str" `shouldBe` Just (TPrimitive TStr)
 
   it "integer literal type produces TLiteral" $ do
-    term "X := 42" `shouldBe` Just (TLiteral (TLitInteger 42))
+    term "X := 42" `shouldBe` Just (TLiteral (TLitInt 42))
 
   it "string literal type produces TLiteral" $ do
-    term "X := \"hello\"" `shouldBe` Just (TLiteral (TLitString "hello"))
+    term "X := \"hello\"" `shouldBe` Just (TLiteral (TLitStr "hello"))
 
   it "bool literal type produces TLiteral" $ do
     term "X := true" `shouldBe` Just (TLiteral (TLitBool True))
@@ -682,7 +685,7 @@ astInspectionSpec = describe "AST structure" $ do
       `shouldBe` Just
         ( TRefinement
             (TPrimitive TStr)
-            (ECompare (EAtom APlaceholder) CNe (EAtom (ALiteral (LString ""))))
+            (ECompare (EAtom APlaceholder) CNe (EAtom (ALiteral (LStr ""))))
         )
 
   it "schema declaration is captured" $ do

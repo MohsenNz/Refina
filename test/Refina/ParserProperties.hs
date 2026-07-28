@@ -108,10 +108,10 @@ ppAtom (AFunCall (Identifier f) args) = f <> " " <> unwords (map ppAtom args)
 ppAtom (AOpSection _) = error "ppAtom: OpSection not supported in roundtrip"
 
 ppLiteral :: Literal -> Text
-ppLiteral (LInteger n) = show n
+ppLiteral (LInt n) = show n
 ppLiteral (LBool True) = "true"
 ppLiteral (LBool False) = "false"
-ppLiteral (LString s) = "\"" <> s <> "\""
+ppLiteral (LStr s) = "\"" <> s <> "\""
 
 ppCompareOp :: CompareOp -> Text
 ppCompareOp CEq = "=="

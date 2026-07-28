@@ -103,11 +103,12 @@ newtype TypeName = TypeName
 
 -- | Singleton literal used as a type.
 data LiteralType
-  = TLitString !Text
-  | TLitInteger !Integer
+  = TLitStr !Text
+  | TLitInt !Integer
   | TLitBool !Bool
   deriving stock (Show, Eq)
 
+-- TODO: do this need multi-constructor ?
 -- | A record type is either multi-line or inline.
 data RecordType
   = TMultiRecord ![Field]
@@ -169,8 +170,8 @@ data Atom
 
 -- | A literal value.
 data Literal
-  = LString !Text
-  | LInteger !Integer
+  = LStr !Text
+  | LInt !Integer
   | LBool !Bool
   deriving stock (Show, Eq)
 

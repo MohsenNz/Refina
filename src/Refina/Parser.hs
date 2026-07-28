@@ -186,8 +186,8 @@ integerLiteralParser = do
   d <- digitChar
   ds <- many digitChar
   sc
-  pure
-    $ foldl'
+  pure $
+    foldl'
       (\acc c -> acc * 10 + toInteger (ord c - ord '0'))
       (toInteger (ord d - ord '0'))
       ds
@@ -207,11 +207,11 @@ booleanLiteralParser =
 
 literalParser :: Parser Literal
 literalParser =
-  LString
+  LStr
     <$> stringLiteralParser
-    <|> LBool
+      <|> LBool
     <$> booleanLiteralParser
-    <|> LInteger
+      <|> LInt
     <$> integerLiteralParser
 
 -- ---------------------------------------------------------------------------
@@ -220,11 +220,11 @@ literalParser =
 
 literalTypeParser :: Parser LiteralType
 literalTypeParser =
-  TLitString
+  TLitStr
     <$> stringLiteralParser
-    <|> TLitBool
+      <|> TLitBool
     <$> booleanLiteralParser
-    <|> TLitInteger
+      <|> TLitInt
     <$> integerLiteralParser
 
 -- ---------------------------------------------------------------------------
@@ -318,6 +318,7 @@ typeTermParser refCol = do
               keyword "where"
               sc
               expr <- exprParser
+              sc
               pure (TRefinement base expr)
           )
       )
@@ -341,8 +342,8 @@ namedTypeParser = do
   sc
   name <- typeNameParser
   let n = unTypeName name
-  when (n `elem` ["List", "Map"])
-    $ fail (show n <> " requires type arguments")
+  when (n `elem` ["List", "Map"]) $
+    fail (show n <> " requires type arguments")
   pure $ TNamed name
 
 -- ---------------------------------------------------------------------------

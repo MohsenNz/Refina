@@ -63,7 +63,7 @@ genAtom =
 genLiteral :: Gen Literal
 genLiteral =
   Gen.choice
-    [ LInteger <$> Gen.integral (Range.linear 0 9999)
+    [ LInt <$> Gen.integral (Range.linear 0 9999)
     ]
 
 genIdentifier :: Gen Identifier
