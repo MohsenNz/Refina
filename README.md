@@ -85,7 +85,7 @@ cabal test --test-option='-p "record"'  # single test
 
 ## Roadmap
 
-* [ ] Parser and AST
+* [x] Parser and AST
 * [ ] Type checker
 * [ ] Predicate evaluator
 * [ ] JSON/YAML validator
