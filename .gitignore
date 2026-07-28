@@ -1,0 +1,5 @@
+.crush/
+dist-newstyle/
+agent-ignore/
+.secret.env
+.env

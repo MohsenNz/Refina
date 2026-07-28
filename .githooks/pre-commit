@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+# Pre-commit hook: format staged Haskell files with fourmolu.
+# Config: fourmolu.yaml at project root.
+
+set -e
+
+HASKELL_FILES=$(git diff --cached --name-only --diff-filter=ACM -- '*.hs')
+
+if [ -z "$HASKELL_FILES" ]; then
+    exit 0
+fi
+
+# Build the file list for fourmolu (space-separated)
+# shellcheck disable=SC2086
+fourmolu --mode inplace $HASKELL_FILES
+
+# Re-stage any formatting changes so the commit includes them
+echo "$HASKELL_FILES" | tr '\n' '\0' | xargs -0 git add
+
+echo "fourmolu: formatted $(echo "$HASKELL_FILES" | wc -l) Haskell file(s)"

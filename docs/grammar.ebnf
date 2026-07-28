@@ -1,0 +1,169 @@
+(* ============================================================ *)
+(* Refina Grammar                                               *)
+(* ============================================================ *)
+
+Module          ::= SchemaDecl? Definition* ;
+
+SchemaDecl      ::= "schema" TypeName ;
+
+Definition      ::= TypeName ":=" TypeExpr ;
+
+(* ============================================================ *)
+(* Types                                                        *)
+(* ============================================================ *)
+
+TypeExpr        ::= UnionType ;
+
+UnionType       ::= "|"? TypeTerm ("|" TypeTerm)* ;
+
+TypeTerm        ::= PrimitiveType
+                  | LiteralType
+                  | NamedType
+                  | RecordType
+                  | TypeTerm "where" Expr
+                  ;
+
+PrimitiveType   ::= "Int"
+                  | "Nat"
+                  | "Num"
+                  | "Str"
+                  | "Bool"
+                  | "Null"
+                  | "List" TypeExpr
+                  | "Map" TypeExpr TypeExpr
+                  ;
+
+NamedType       ::= TypeName ;
+
+LiteralType     ::= StringLiteral
+                  | IntegerLiteral
+                  | BooleanLiteral
+                  ;
+
+(* ============================================================ *)
+(* Records *)
+(* ============================================================ *)
+
+RecordType      ::= MultiRecord
+                  | InlineRecord ;
+
+MultiRecord     ::= Field+ ";" ;
+
+InlineRecord    ::= InlineField ("," InlineField)* ";" ;
+
+Field           ::= Identifier Optional? ":" TypeExpr ;
+
+InlineField     ::= Identifier Optional? ":" TypeExpr ;
+
+Optional        ::= "?" ;
+
+(* ============================================================ *)
+(* Expressions *)
+(* ============================================================ *)
+
+Expr            ::= OrExpr ;
+
+OrExpr          ::= AndExpr
+                  | OrExpr "or" AndExpr ;
+
+AndExpr         ::= CompareExpr
+                  | AndExpr "and" CompareExpr ;
+
+CompareExpr     ::= PipeExpr
+                  | CompareExpr CompareOp PipeExpr ;
+
+CompareOp       ::= "=="
+                  | "!="
+                  | "<"
+                  | "<="
+                  | ">"
+                  | ">="
+                  | "!~" ;
+
+PipeExpr        ::= ComposeExpr
+                  | PipeExpr PipeOp ComposeExpr ;
+
+PipeOp          ::= "|>"
+                  | "<|" ;
+
+ComposeExpr     ::= AddExpr
+                  | ComposeExpr ComposeOp AddExpr ;
+
+ComposeOp       ::= ".>"
+                  | "<." ;
+
+AddExpr         ::= MulExpr
+                  | AddExpr ("+" | "-") MulExpr ;
+
+MulExpr         ::= UnaryExpr
+                  | MulExpr ("*" | "/" | "%") UnaryExpr ;
+
+UnaryExpr       ::= "-" UnaryExpr
+                  | Atom ;
+
+(* ============================================================ *)
+(* Atoms *)
+(* ============================================================ *)
+
+Atom            ::= Placeholder
+                  | Identifier
+                  | Literal
+                  | FunctionCall
+                  | OperatorSection
+                  | "(" Expr ")" ;
+
+Placeholder     ::= "_" ;
+
+Literal         ::= StringLiteral
+                  | IntegerLiteral
+                  | BooleanLiteral ;
+
+FunctionCall    ::= Identifier Atom+ ;
+
+OperatorSection ::= "(" CompareOp Expr ")"
+                  | "(" Expr CompareOp ")"
+                  | "(" "+" Expr ")"
+                  | "(" Expr "+" ")"
+                  | "(" "-" Expr ")"
+                  | "(" Expr "-" ")"
+                  | "(" "*" Expr ")"
+                  | "(" Expr "*" ")"
+                  | "(" "/" Expr ")"
+                  | "(" Expr "/" ")"
+                  | "(" "%" Expr ")"
+                  | "(" Expr "%" ")" ;
+
+(* ============================================================ *)
+(* Lexical *)
+(* ============================================================ *)
+
+TypeName        ::= UpperIdent ;
+
+Identifier      ::= LowerIdent ;
+
+UpperIdent      ::= UpperLetter
+                    (Letter | Digit | "_")* ;
+
+LowerIdent      ::= LowerLetter
+                    (Letter | Digit | "_")* ;
+
+BooleanLiteral  ::= "true"
+                  | "false" ;
+
+IntegerLiteral  ::= Digit+ ;
+
+StringLiteral   ::= '"' Character* '"'
+                  | "'" Character* "'" ;
+
+Letter          ::= UpperLetter | LowerLetter ;
+
+UpperLetter     ::= "A"…"Z" ;
+
+LowerLetter     ::= "a"…"z" ;
+
+Digit           ::= "0"…"9" ;
+
+Character       ::= ? any character except matching quote ? ;
+
+Comment         ::= "--" ? any character ? * ;
+                  (* extends to end of line *)

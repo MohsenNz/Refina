@@ -1,0 +1,115 @@
+schema Schema
+
+-------------------------------------------------------------------------------
+-- A big picture
+
+Schema :=
+  name      : Str where _ !~ "-" and _ != "s"
+  kind      : "app" | "VM" | "service"
+  id        : Str where matches "^[a-z]+-[a-z]+$" _
+  maxLoad?  : Num
+  users?    :
+  | max : Int
+    min : Int
+  ;   where max _ > min _
+  | fieldx : Str
+    fieldy : Int
+  ;
+  maxT?     : Num
+;
+
+-- comments start with --
+-- this is another comment
+
+-------------------------------------------------------------------------------
+-- Refinement Types
+
+UserId := Str where _ !~ "-" -- use place holder _ as parameter and here it is Str
+
+Cpu = Str where matches "^[0-9]+m?$" _
+Memory = Str where _ |> matches "^[0-9]+(Mi|Gi)$" _
+
+-------------------------------------------------------------------------------
+-- Record Types
+
+User :=
+  id    : UserId               -- required
+  name? : Str where len _ > 0  -- optional
+;
+
+User :=
+  family:
+    father: Str
+    mother: Str
+    numOfBrothers: Int
+  ;
+  name: Str
+;
+
+T2 := List User where _ |> map (family .> numOfBrothers) |> sum < 50
+
+InOneRecord := a: Int, b?: Str ;
+
+PodSpec =
+  containers : List Container
+;   where _ |> containers |> len >= 1  -- pipe to access nested fields, here
+                                       -- `containers` is just a function as a
+                                       -- field selection
+
+-------------------------------------------------------------------------------
+-- Union Types
+
+Kind := "app" | "VM" | "service"
+
+MyUnion :=
+| "abcd"
+| kind : Kind, value : Int;  -- one line record in union type
+| f1 : Str                   -- mulily line record in union type
+  f2 : Int
+  f3 : Int
+;
+| 4
+| 10
+| InOneRecord
+
+-------------------------------------------------------------------------------
+-- Type Alias
+
+Name := Str
+
+-------------------------------------------------------------------------------
+-- Another big picture
+
+Deployment :=
+  apiVersion  : "apps/v1"
+  kind        : "Deployment"
+  metadata?   :
+    name      : Str :: _ !~ "/" and len _ > 0
+  ;
+  spec?       :
+    replicas? : Int :: _ >= 1
+    template? :
+      spec? :
+        containers : List Container where len _ >= 1
+      ;
+    ;
+  ;
+;
+
+Container :=
+  name       : Str
+  image      : Str
+  resources? :
+    requests :
+      cpu    : Nat
+      memory : Nat
+    ;
+    limits:
+      cpu    : Nat
+      memory : Nat
+    ;
+    ab: Str
+  ;
+  where _ |> limits |> cpu    >= _ |> requests |> cpu
+    and _ |> limits |> memory >= _ |> requests |> memory
+;

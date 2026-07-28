@@ -1,0 +1,61 @@
+cabal-version:          3.0
+name:                   refina
+version:                0.1.0.0
+license:                BSD-3-Clause
+license-file:           LICENSE
+author:                 Mohsen
+maintainer:             thelight.mn@gmail.com
+build-type:             Simple
+-- extra-doc-files:        CHANGELOG.md
+
+common warnings
+    ghc-options: -Wall
+
+common extensions
+    default-extensions: LambdaCase
+                        OverloadedStrings
+                        RecordWildCards
+                        GeneralizedNewtypeDeriving
+                        NoImplicitPrelude
+
+library
+    import:             warnings
+    import:             extensions
+    exposed-modules:    Refina.AST
+                        Refina.Parser
+    build-depends:      base ^>=4.20.2.0
+                      , relude
+                      , megaparsec
+                      , parser-combinators
+                      , text
+                      , containers
+    hs-source-dirs:     src
+    default-language:   GHC2021
+
+executable refina
+    import:             warnings
+    import:             extensions
+    main-is:            Main.hs
+    build-depends:      base ^>=4.20.2.0
+                      , relude
+                      , refina
+                      , megaparsec
+    hs-source-dirs:     app
+    default-language:   GHC2021
+
+test-suite refina-test
+    import:             warnings
+    import:             extensions
+    type:               exitcode-stdio-1.0
+    main-is:            Spec.hs
+    other-modules:      Refina.ParserSpec
+                        Refina.Gen
+                        Refina.ParserProperties
+    build-depends:      base ^>=4.20.2.0
+                      , relude
+                      , refina
+                      , megaparsec
+                      , hspec
+                      , hedgehog
+    hs-source-dirs:     test
+    default-language:   GHC2021

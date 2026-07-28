@@ -1,0 +1,219 @@
+schema Schema
+
+-------------------------------------------------------------------------------
+-- A big picture
+
+Schema :=
+  name      : Str where _ !~ "-" and _ != "s"
+  kind      : "app" | "VM" | "service"
+  id        : Str where matches "^[a-z]+-[a-z]+$" _
+  maxLoad?  : Num
+  users?    :
+  | max : Int
+    min : Int
+  ;   where max _ > min _
+  | fieldx : Str
+    fieldy : Int
+  ;
+  maxT?     : Num
+;
+
+-- Specifications
+
+-- comments start with --
+-- this is another comment
+
+-------------------------------------------------------------------------------
+-- Primitive Types
+
+Int        -- integer numbers
+Nat        -- not negative numbers, 0, 1, 2, ...
+Num        -- floating-point or integer numbers
+Str        -- strings
+Bool       -- boolean
+List t     -- homogeneous sequences
+Map t1 t2
+Null
+
+-------------------------------------------------------------------------------
+-- Refinement Types
+
+UserId := Str where _ !~ "-" -- use place holder _ as parameter and here it is Str
+
+Cpu := Str where matches "^[0-9]+m?$" _
+Memory := Str where _ |> matches "^[0-9]+(Mi|Gi)$" _
+
+-------------------------------------------------------------------------------
+-- Record Types
+
+User :=
+  id    : UserId               -- required
+  name? : Str where len _ > 0  -- optional
+;
+
+User :=
+  family:
+    father: Str
+    mother: Str
+    numOfBrothers: Int
+  ;
+  name: Str
+;
+
+T2 := List User where _ |> map (family .> numOfBrothers) |> sum < 50
+
+InOneRecord := a: Int, b?: Str ;
+
+PodSpec :=
+  containers : List Container
+;   where _ |> containers |> len >= 1  -- pipe to access nested fields, here
+                                       -- `containers` is just a function as a
+                                       -- field selection
+
+-------------------------------------------------------------------------------
+-- Union Types
+
+Config := AppConfig | ServiceConfig
+
+Kind := "app" | "VM" | "service"
+
+MyUnion :=
+| "abcd"
+| kind : Kind, value : Int;  -- one line record in union type
+| f1 : Str                   -- mulily line record in union type
+  f2 : Int
+  f3 : Int
+;
+| 4
+| 10
+| ServiceConfig
+
+-------------------------------------------------------------------------------
+-- Type Alias
+
+Name := Str
+
+-- Note: all Types are uppercase
+
+-------------------------------------------------------------------------------
+-- Compare Operators
+
+==  -- a == a
+!=  -- a != a
+<   -- a < a  where a is Int, Nat, Num
+<=  -- a <= a where a is Int, Nat, Num
+>   -- a > a  where a is Int, Nat, Num
+>=  -- a >= a where a is Int, Nat, Num
+!~  -- a !~ a where a is Str
+
+-------------------------------------------------------------------------------
+-- Math Operators
+
++  -- a + a where a is is Int, Nat, Num
+-  -- a - a where a is is Int, Nat, Num
+*  -- a * a where a is is Int, Nat, Num
+/  -- a / a where a is is Int, Nat, Num
+%  -- a % a where a is is Int, Nat, Num
+
+-------------------------------------------------------------------------------
+-- Operator section
+
+(< y)      -- is function `\x -> x < y`
+(< y) x    -- x < y
+(x <) y    -- x < y
+
+-- and so for all operators
+
+-------------------------------------------------------------------------------
+-- Built-in Functions
+
+len        -- List t -> Int
+member     -- t -> List t -> Bool
+all        -- (t -> Bool) -> List t -> Bool
+any        -- (t -> Bool) -> List t -> Bool
+exists     -- (t -> Bool) -> List t -> Bool
+map        -- (t1 -> t2) -> List t1 -> List t2
+
+matches    -- RegextStr -> Str -> Bool
+startsWith -- Str -> Str -> Bool
+endsWith   -- Str -> Str -> Bool
+contains   -- Str -> Str -> Bool
+
+not        -- Bool -> Bool
+
+
+-- Note: all functions are lowercase
+
+-------------------------------------------------------------------------------
+-- Pipe Operators
+
+|> -- pipe to right, the type is: a |> (a -> b)
+<| -- pipe to left,  the type is: (a -> b) <| a
+
+-- Note: Pipe has higher precedence than comparison operators
+
+-------------------------------------------------------------------------------
+-- Function composition
+
+.>
+<.
+
+(f .> g) x  -- f (g x)
+(f <. g) x  -- g (f x)
+
+H =
+  field1 :
+    abcd : Int
+  ;
+  field2 : Int
+;
+
+T =
+  { a : List H where all (field1 .> abcd .> (< 2)) _
+    --                           ^ function composition
+  }
+
+-------------------------------------------------------------------------------
+-- Partial application
+
+G =
+  x : Str where _ |> matches "^[a-z]+-[a-z]+$"
+  --                  ^here matches has partial application
+;
+
+-------------------------------------------------------------------------------
+-- Another big picture
+
+Deployment :=
+  apiVersion  : "apps/v1"
+  kind        : "Deployment"
+  metadata?   :
+    name      : Str where _ !~ "/" and len _ > 0
+  ;
+  spec?       :
+    replicas? : Int where _ >= 1
+    template? :
+      spec? :
+        containers : List Container where len _ >= 1
+      ;
+    ;
+  ;
+;
+
+Container :=
+  name       : Str
+  image      : Str
+  resources? :
+    requests :
+      cpu    : Str
+      memory : Nat
+    ;
+    limits:
+      cpu    : Nat
+      memory : Nat
+    ;
+    ab: Str
+  ;
+  where _ |> limits |> cpu    >= _ |> requests |> cpu
+    and _ |> limits |> memory >= _ |> requests |> memory
+;
