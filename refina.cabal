@@ -17,6 +17,7 @@ common extensions
                         RecordWildCards
                         GeneralizedNewtypeDeriving
                         NoImplicitPrelude
+                        DerivingStrategies
 
 library
     import:             warnings

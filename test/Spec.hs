@@ -1,10 +1,11 @@
 module Main (main) where
 
-import Hedgehog qualified as HG
-import Refina.ParserProperties qualified
-import Refina.ParserSpec qualified
+import Refina.ParserProperties (propertySpec)
+import Refina.ParserSpec (spec)
 import Relude
-import Test.Hspec
+import Test.Hspec (hspec)
 
 main :: IO ()
-main = undefined
+main = hspec $ do
+  spec
+  propertySpec

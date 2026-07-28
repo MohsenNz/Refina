@@ -26,8 +26,8 @@ Schema :=
 
 UserId := Str where _ !~ "-" -- use place holder _ as parameter and here it is Str
 
-Cpu = Str where matches "^[0-9]+m?$" _
-Memory = Str where _ |> matches "^[0-9]+(Mi|Gi)$" _
+Cpu := Str where matches "^[0-9]+m?$" _
+Memory := Str where _ |> matches "^[0-9]+(Mi|Gi)$" _
 
 -------------------------------------------------------------------------------
 -- Record Types
@@ -50,7 +50,7 @@ T2 := List User where _ |> map (family .> numOfBrothers) |> sum < 50
 
 InOneRecord := a: Int, b?: Str ;
 
-PodSpec =
+PodSpec :=
   containers : List Container
 ;   where _ |> containers |> len >= 1  -- pipe to access nested fields, here
                                        -- `containers` is just a function as a
@@ -84,10 +84,10 @@ Deployment :=
   apiVersion  : "apps/v1"
   kind        : "Deployment"
   metadata?   :
-    name      : Str :: _ !~ "/" and len _ > 0
+    name      : Str where _ !~ "/" and len _ > 0
   ;
   spec?       :
-    replicas? : Int :: _ >= 1
+    replicas? : Int where _ >= 1
     template? :
       spec? :
         containers : List Container where len _ >= 1

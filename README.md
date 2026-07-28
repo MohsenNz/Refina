@@ -65,7 +65,7 @@ A schema denotes a **type**. A configuration is valid if its value belongs to th
 Refinement types are written as:
 
 ```dsl
-UserId = Str where _ !~ "-"
+UserId := Str where _ !~ "-"
 ```
 
 where `_` denotes the value being refined.

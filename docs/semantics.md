@@ -261,14 +261,13 @@ Examples:
     _ |> f          -- apply f to _    (same as f _)
     f <| _          -- apply f to _    (same as f _)
 
-Pipes are left-associative and have lower precedence than comparisons.
-They are the lowest-precedence operators inside value expressions.
+Pipes are left-associative and have higher precedence than comparisons.
 
 Combining with the pipe operator `|>`, this gives nested field access similar to dot notation in other languages:
 
     _ |> limits |> cpu
 
-is equivalent to  limits (cpu _)
+is equivalent to  cpu (limits _)
 
     Container :=
       resources? :
