@@ -456,71 +456,46 @@ andParser = do
 compareParser :: Parser Expr
 compareParser = do
   left <- pipeParser
-  rest <-
-    many
-      ( try
-          ( do
-              op <- compareOpParser
-              right <- pipeParser
-              pure (op, right)
-          )
-      )
+  rest <- many $ try $ do
+    op <- compareOpParser
+    right <- pipeParser
+    pure (op, right)
   pure $ foldl' (\l (op, r) -> ECompare l op r) left rest
 
 pipeParser :: Parser Expr
 pipeParser = do
   left <- composeParser
-  rest <-
-    many
-      ( try
-          ( do
-              op <- pipeOpParser
-              right <- composeParser
-              pure (op, right)
-          )
-      )
+  rest <- many $ try $ do
+    op <- pipeOpParser
+    right <- composeParser
+    pure (op, right)
   pure $ foldl' (\l (op, r) -> EPipe l op r) left rest
 
 composeParser :: Parser Expr
 composeParser = do
   left <- addParser
-  rest <-
-    many
-      ( try
-          ( do
-              op <- composeOpParser
-              right <- addParser
-              pure (op, right)
-          )
-      )
+  rest <- many $ try $ do
+    op <- composeOpParser
+    right <- addParser
+    pure (op, right)
   pure $ foldl' (\l (op, r) -> ECompose l op r) left rest
 
 addParser :: Parser Expr
 addParser = do
   left <- mulParser
-  rest <-
-    many
-      ( try
-          ( do
-              op <- addOpParser
-              right <- mulParser
-              pure (op, right)
-          )
-      )
+  rest <- many $ try $ do
+    op <- addOpParser
+    right <- mulParser
+    pure (op, right)
   pure $ foldl' (\l (op, r) -> EAdd l op r) left rest
 
 mulParser :: Parser Expr
 mulParser = do
   left <- unaryParser
-  rest <-
-    many
-      ( try
-          ( do
-              op <- mulOpParser
-              right <- unaryParser
-              pure (op, right)
-          )
-      )
+  rest <- many $ try $ do
+    op <- mulOpParser
+    right <- unaryParser
+    pure (op, right)
   pure $ foldl' (\l (op, r) -> EMul l op r) left rest
 
 unaryParser :: Parser Expr
@@ -621,7 +596,7 @@ functionCallParser = do
   pure $ AFunCall fn args
 
 -- | Parse an atomic expression (same as atomic parts of Atom but we need to
---   avoid infinite recursion — the atoms that can be arguments to a function call).
+-- avoid infinite recursion — the atoms that can be arguments to a function call).
 atomAtomParser :: Parser Atom
 atomAtomParser =
   choice
