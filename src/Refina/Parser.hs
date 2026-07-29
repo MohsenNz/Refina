@@ -578,10 +578,7 @@ atomParser =
       pure $ AParens e
 
 placeholderParser :: Parser Atom
-placeholderParser = do
-  sc
-  void $ char '_'
-  pure APlaceholder
+placeholderParser = sc *> char '_' *> pure APlaceholder
 
 -- | FunctionCall ::= Identifier Atom+
 functionCallParser :: Parser Atom
@@ -598,9 +595,9 @@ atomAtomParser =
   choice
     [ try operatorSectionParser
     , try parensAtomParser
-    , try placeholderParser
-    , try $ sc *> (AIdent <$> identifierParser)
-    , try $ sc *> (ALiteral <$> literalParser)
+    , try $ sc' *> char '_' *> pure APlaceholder
+    , try $ sc' *> (AIdent <$> identifierParser)
+    , try $ sc' *> (ALiteral <$> literalParser)
     ]
   where
     parensAtomParser = do

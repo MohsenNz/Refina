@@ -10,7 +10,10 @@ import System.IO.Error (IOError, isDoesNotExistError)
 import Text.Megaparsec (errorBundlePretty)
 
 main :: IO ()
-main = do
+main = mainRun
+
+mainRun :: IO ()
+mainRun = do
   args <- getArgs
   case args of
     [] -> do
@@ -41,3 +44,6 @@ main = do
             Right m -> do
               putStrLn "SUCCESS: parsed"
               putStrLn $ renderString $ layoutPretty defaultLayoutOptions $ prettyModule m
+
+mainTest :: IO ()
+mainTest = undefined
