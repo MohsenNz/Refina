@@ -104,7 +104,7 @@ ppAtom APlaceholder = "_"
 ppAtom (AIdent (Identifier n)) = n
 ppAtom (ALiteral lit) = ppLiteral lit
 ppAtom (AParens e) = "(" <> prettyExpr 0 e <> ")"
-ppAtom (AFunCall (Identifier f) args) = f <> " " <> unwords (map ppAtom args)
+ppAtom (AFunCall (Identifier f) args) = f <> " " <> unwords (map ppAtom (toList args))
 ppAtom (AOpSection _) = error "ppAtom: OpSection not supported in roundtrip"
 
 ppLiteral :: Literal -> Text

@@ -109,6 +109,7 @@ data LiteralType
   deriving stock (Show, Eq)
 
 -- TODO: do this need multi-constructor ?
+--       add NonEmpty
 -- | A record type is either multi-line or inline.
 data RecordType
   = TMultiRecord ![Field]
@@ -163,7 +164,7 @@ data Atom
   = APlaceholder
   | AIdent !Identifier
   | ALiteral !Literal
-  | AFunCall !Identifier ![Atom]
+  | AFunCall !Identifier !(NonEmpty Atom)
   | AOpSection !OpSection
   | AParens !Expr
   deriving stock (Show, Eq)

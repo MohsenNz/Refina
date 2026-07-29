@@ -1,7 +1,9 @@
 module Main (main) where
 
 import Control.Exception (try)
-import Refina.AST (Module (..))
+import Prettyprinter (defaultLayoutOptions, layoutPretty)
+import Prettyprinter.Render.String (renderString)
+import Refina.AST.Dump (prettyModule)
 import Refina.Parser (parseModule, parseRefina)
 import Relude
 import System.IO.Error (IOError, isDoesNotExistError)
@@ -17,9 +19,9 @@ main = do
         Left err -> do
           putStrLn (errorBundlePretty err)
           exitFailure
-        Right m ->
-          putText
-            ("SUCCESS: parsed " <> show (length (moduleDefinitions m)) <> " definitions")
+        Right m -> do
+          putStrLn "SUCCESS: parsed"
+          putStrLn $ renderString $ layoutPretty defaultLayoutOptions $ prettyModule m
     (f : _) -> do
       result <- try @SomeException (readFileText f)
       case result of
@@ -36,6 +38,6 @@ main = do
             Left err -> do
               putStrLn (errorBundlePretty err)
               exitFailure
-            Right m ->
-              putText
-                ("SUCCESS: parsed " <> show (length (moduleDefinitions m)) <> " definitions")
+            Right m -> do
+              putStrLn "SUCCESS: parsed"
+              putStrLn $ renderString $ layoutPretty defaultLayoutOptions $ prettyModule m

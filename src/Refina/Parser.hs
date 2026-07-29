@@ -56,6 +56,7 @@ module Refina.Parser
 import Data.Char (isSpace)
 import Relude hiding (many, some)
 
+import Data.List.NonEmpty qualified as NE
 import Refina.AST
 import Text.Megaparsec
 import Text.Megaparsec.Char
@@ -311,17 +312,12 @@ typeTermParser refCol = do
   -- Try to attach a "where" refinement clause.
   -- Use try because keyword("where") consumes leading whitespace; we need
   -- to backtrack if there is no "where".
-  r <-
-    optional
-      ( try
-          ( do
-              keyword "where"
-              sc
-              expr <- exprParser
-              sc
-              pure (TRefinement base expr)
-          )
-      )
+  r <- optional $ try $ do
+    keyword "where"
+    sc
+    expr <- exprParser
+    sc
+    pure (TRefinement base expr)
   pure (fromMaybe base r)
 
 baseTypeTermParser :: Int -> Parser TypeTerm
@@ -571,8 +567,8 @@ atomParser =
       , try functionCallParser
       , try parensParser
       , try placeholderParser
-      , try (do sc; i <- identifierParser; pure $ AIdent i)
-      , try (do sc; l <- literalParser; pure $ ALiteral l)
+      , try $ sc *> (AIdent <$> identifierParser)
+      , try $ sc *> (ALiteral <$> literalParser)
       ]
   where
     parensParser = do
@@ -592,7 +588,7 @@ functionCallParser :: Parser Atom
 functionCallParser = do
   sc
   fn <- identifierParser
-  args <- some atomAtomParser
+  args <- someNE atomAtomParser
   pure $ AFunCall fn args
 
 -- | Parse an atomic expression (same as atomic parts of Atom but we need to
@@ -603,8 +599,8 @@ atomAtomParser =
     [ try operatorSectionParser
     , try parensAtomParser
     , try placeholderParser
-    , try (do sc; i <- identifierParser; pure $ AIdent i)
-    , try (do sc; l <- literalParser; pure $ ALiteral l)
+    , try $ sc *> (AIdent <$> identifierParser)
+    , try $ sc *> (ALiteral <$> literalParser)
     ]
   where
     parensAtomParser = do
@@ -678,3 +674,11 @@ opSectionMulLeft = do
   e <- exprParser
   op <- mulOpParser
   pure $ OSMulRight e op
+
+-- ---------------------------------------------------------------------------
+-- Utile
+-- ---------------------------------------------------------------------------
+
+-- | someNonEmpty
+someNE :: Parser a -> Parser (NonEmpty a)
+someNE = fmap NE.fromList . some
